@@ -13,6 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "cypress": "^13.6.6",
-    "joi": "^17.12.0"
+    "faker": "^5.5.3",
+    "joi": "^17.12.0",
+    "node": "^21.7.1"
   }
 }
