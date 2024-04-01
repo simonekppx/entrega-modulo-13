@@ -23,19 +23,8 @@ describe('Testes da Funcionalidade Usuários', () => {
     })
   });
 
-  it('Deve cadastrar um usuário com sucesso', () => {
-    const email = faker.internet.email();
-    cy.request({
-      method: 'POST',
-      url: 'usuarios',
-      failOnStatusCode: false,
-      body: {
-        "nome": "Simone Kovalenkinas",
-        "email": email,
-        "password": "teste",
-        "administrador": "true"
-      },
-    }).then((response) => {
+  it('Deve cadastrar um usuário com sucesso usando comando customizado', () => {
+    cy.cadastrarUsuario("Simone Kovalenkinas", "simone@example.com", "teste", true).then((response) => {
       expect(response.status).to.equal(201)
       expect(response.body.message).to.equal('Cadastro realizado com sucesso')
 
@@ -50,6 +39,7 @@ describe('Testes da Funcionalidade Usuários', () => {
       expect(response.body._id).to.equal(id)
     })
   });
+
 
   it('Deve validar um usuário com email inválido', () => {
     cy.request({
@@ -70,26 +60,49 @@ describe('Testes da Funcionalidade Usuários', () => {
 
   });
 
-  it('Deve editar um usuário previamente cadastrado', () => {
-    cy.request({
-      method: 'PUT',
-      url: 'usuarios/2HysNR4MAjUbyqWy',
-      failOnStatusCode: false,
-      body: {
-        "nome": "Simone Kovalenkinas 333",
-        "email": "simone.qa2362@gmail.com",
-        "password": "teste31",
-        "administrador": "true"
-      },
-    }).then((response) => {
-      expect(response.status).to.equal(200)
-      expect(response.body.message).to.equal('Registro alterado com sucesso')
-    });
+  it('Deve editar um usuário cadastrado', () => {
+    // Chamar o comando customizado para cadastrar um usuário
+    cy.cadastrarUsuario().then((response) => {
+      expect(response.status).to.equal(201)
+      expect(response.body.message).to.equal('Cadastro realizado com sucesso')
 
-    it('Deve excluir um usuário previamente cadastrado', () => {
+      // Armazenar o ID do usuário
+      const id = response.body._id
+
+      // Gerar um email aleatório
+      const email = faker.internet.email();
+
+      // Editar o usuário usando o ID e email gerado
+      cy.request({
+        method: 'PUT',
+        url: `usuarios/${id}`,
+        body: {
+          "nome": "Nome Editado",
+          "email": email,
+          "password": "senhaeditada",
+          "administrador": "true"
+        },
+      }).then((response) => {
+        expect(response.status).to.equal(200)
+        expect(response.body.message).to.equal('Registro alterado com sucesso')
+      })
+    })
+  });
+
+  it('Deve excluir um usuário previamente cadastrado', () => {
+    // Chamar o comando customizado para cadastrar um usuário
+    cy.cadastrarUsuario().then((response) => {
+      expect(response.status).to.equal(201)
+      expect(response.body.message).to.equal('Cadastro realizado com sucesso')
+
+      // Armazenar o ID do usuário
+      const id = response.body._id
+
+      // Excluir o usuário usando o ID gerado 
+
       cy.request({
         method: 'DELETE',
-        url: 'usuarios/PJWj2hM3s6bReNPs',
+        url: `usuarios/${id}`,
 
       }).then((response) => {
         expect(response.status).to.equal(200)
@@ -97,4 +110,5 @@ describe('Testes da Funcionalidade Usuários', () => {
       });
     });
   });
+
 });
